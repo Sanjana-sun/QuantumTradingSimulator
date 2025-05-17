@@ -2,6 +2,14 @@ import pandas as pd
 from transformers import pipeline
 from datetime import datetime
 
+# Debug: Print contents of AAPL_market_data.csv before running
+print("Contents of AAPL_market_data.csv before running:")
+try:
+    market_data = pd.read_csv("AAPL_market_data.csv")
+    print(market_data.head())
+except Exception as e:
+    print(f"Error reading AAPL_market_data.csv: {e}")
+
 # Load the mock X posts dataset
 x_posts = pd.read_csv("mock_x_posts.csv")
 
@@ -26,5 +34,14 @@ x_posts['sentiment'], x_posts['sentiment_score'] = zip(*x_posts['text'].apply(an
 
 # Save the results to a new CSV file
 output_file = "AAPL_sentiment.csv"
+print(f"Writing to {output_file}...")
 x_posts.to_csv(output_file, index=False)
 print(f"Sentiment analysis results saved to {output_file}")
+
+# Debug: Print contents of AAPL_market_data.csv after running
+print("Contents of AAPL_market_data.csv after running:")
+try:
+    market_data = pd.read_csv("AAPL_market_data.csv")
+    print(market_data.head())
+except Exception as e:
+    print(f"Error reading AAPL_market_data.csv: {e}")
