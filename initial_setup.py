@@ -1,57 +1,69 @@
-import yfinance as yf
-import tweepy
 import pandas as pd
+import yfinance as yf
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
-import os
 
-# Load environment variables
-load_dotenv()
+# Define the date range for historical stock data
+end_date = datetime(2025, 4, 22)
+start_date = end_date - timedelta(days=5)
 
-# X API credentials (commented out for now)
-# X_API_KEY = os.getenv("X_API_KEY")
-# X_API_SECRET = os.getenv("X_API_SECRET")
-# X_ACCESS_TOKEN = os.getenv("X_ACCESS_TOKEN")
-# X_ACCESS_TOKEN_SECRET = os.getenv("X_ACCESS_TOKEN_SECRET")
+# Fetch AAPL stock data
+stock = yf.download('AAPL', start=start_date, end=end_date)
+stock.reset_index(inplace=True)
 
-# # Initialize X API client
-# auth = tweepy.OAuthHandler(X_API_KEY, X_API_SECRET)
-# auth.set_access_token(X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET)
-# api = tweepy.API(auth, wait_on_rate_limit=True)
+# Handle MultiIndex columns if present
+if isinstance(stock.columns, pd.MultiIndex):
+    # Flatten the MultiIndex by taking the first level (Price)
+    stock.columns = [col[0] for col in stock.columns]
 
-# Function to fetch market data using yfinance
-def fetch_market_data(ticker, start_date, end_date):
-    stock_data = yf.download(ticker, start=start_date, end=end_date)
-    print(f"Fetched market data for {ticker}: {stock_data.shape[0]} rows")
-    return stock_data[['Open', 'High', 'Low', 'Close', 'Volume']]
+# Reorder columns to match expected order
+expected_columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+stock = stock[expected_columns]  # Reorder columns
 
-# Function to fetch X posts for a given ticker (commented out for now)
-# def fetch_x_posts(ticker, num_posts=100):
-#     query = f"${ticker} -filter:retweets"
-#     tweets = []
-#     for tweet in tweepy.Cursor(api.search_tweets, q=query, lang="en", tweet_mode="extended").items(num_posts):
-#         tweets.append({
-#             'text': tweet.full_text,
-#             'created_at': tweet.created_at,
-#             'user': tweet.user.screen_name
-#         })
-#     tweet_df = pd.DataFrame(tweets)
-#     print(f"Fetched {tweet_df.shape[0]} X posts for {ticker}")
-#     return tweet_df
+# Validate the data
+if list(stock.columns) != expected_columns:
+    raise ValueError(f"Unexpected columns in stock data: {stock.columns}. Expected: {expected_columns}")
 
-# Example usage
-if __name__ == "__main__":
-    # Define parameters
-    ticker = "AAPL"
-    end_date = datetime.now().strftime('%Y-%m-%d')
-    start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-    
-    # Fetch market data
-    market_data = fetch_market_data(ticker, start_date, end_date)
-    market_data.to_csv(f"{ticker}_market_data.csv")
-    print(f"Market data for {ticker} saved to {ticker}_market_data.csv")
-    
-    # Fetch X posts (commented out for now)
-    # x_posts = fetch_x_posts(ticker)
-    # x_posts.to_csv(f"{ticker}_x_posts.csv")
-    # print(f"X posts for {ticker} saved to {ticker}_x_posts.csv")
+# Ensure numerical columns are of the correct type
+numerical_columns = ['Open', 'High', 'Low', 'Close']
+for col in numerical_columns:
+    stock[col] = pd.to_numeric(stock[col], errors='coerce')
+stock['Volume'] = stock['Volume'].astype(int)
+
+# Save the stock data
+print("Writing to AAPL_market_data.csv...")
+stock.to_csv("AAPL_market_data.csv", index=False)
+print("Stock data saved to AAPL_market_data.csv")
+
+# Verify the saved file
+saved_data = pd.read_csv("AAPL_market_data.csv")
+print("Contents of AAPL_market_data.csv after writing:")
+print(saved_data.head())
+
+# Create mock X posts
+mock_posts = pd.DataFrame({
+    'text': [
+        "AAPL earnings beat expectations, stock is a buy!",
+        "Loving the new AAPL product, definitely a game-changer!",
+        "AAPL stock looks overvalued, might sell soon.",
+        "AAPL is killing it today, great performance!",
+        "Mixed feelings about AAPL’s latest move, holding for now.",
+        "AAPL stock dropping, not a good sign.",
+        "Disappointing AAPL update, selling my shares.",
+        "AAPL looks risky right now, I’m out.",
+        "AAPL might recover, but I’m cautious.",
+        "Not sure about AAPL’s future, staying neutral.",
+        "AAPL is soaring today, great earnings report!",
+        "Not impressed with AAPL's latest product launch, might sell my shares.",
+        "AAPL stock looks stable, holding for now.",
+        "Wow, AAPL just hit a new all-time high, amazing!",
+        "Concerned about AAPL’s supply chain issues, could impact stock price."
+    ],
+    'created_at': [
+        "2025-04-17 10:00:00", "2025-04-17 11:00:00", "2025-04-17 12:00:00", "2025-04-17 13:00:00", "2025-04-17 14:00:00",
+        "2025-04-21 10:00:00", "2025-04-21 11:00:00", "2025-04-21 12:00:00", "2025-04-21 13:00:00", "2025-04-21 14:00:00",
+        "2025-04-22 10:00:00", "2025-04-22 11:00:00", "2025-04-22 12:00:00", "2025-04-22 13:00:00", "2025-04-22 14:00:00"
+    ],
+    'user': ['user1', 'user2', 'user3', 'user4', 'user5', 'user1', 'user2', 'user3', 'user4', 'user5', 'user1', 'user2', 'user3', 'user4', 'user5']
+})
+mock_posts.to_csv("mock_x_posts.csv", index=False)
+print("Mock X posts saved to mock_x_posts.csv")
