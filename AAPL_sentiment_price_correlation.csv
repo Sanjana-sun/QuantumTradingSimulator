@@ -1,1 +1,4 @@
-Date,Close,Price_Change,Price_Direction,sentiment,sentiment_score,Predicted_Direction
+Date,Close,Price_Change,Price_Direction,sentiment,sentiment_score,sentiment_weight,Predicted_Direction
+2025-04-17,196.72203063964844,,0,positive,0.9767754793167114,0.2,1
+2025-04-21,192.9070281982422,-0.01939285818167713,0,negative,0.9963198184967041,-1.0,0
+2025-04-22,199.4784240722656,0.03406509309381023,1,positive,0.9966752052307128,0.2,1
