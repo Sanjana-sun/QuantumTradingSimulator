@@ -1,0 +1,6 @@
+text,created_at,user,sentiment,sentiment_score
+"AAPL is soaring today, great earnings report!",2025-05-17 10:00:00,user1,positive,0.9998248219490051
+"Not impressed with AAPL's latest product launch, might sell my shares.",2025-05-17 11:00:00,user2,negative,0.9992198944091797
+"AAPL stock looks stable, holding for now.",2025-05-17 12:00:00,user3,positive,0.9928818941116333
+"Wow, AAPL just hit a new all-time high, amazing!",2025-05-17 13:00:00,user4,positive,0.9998390674591064
+"Concerned about AAPL’s supply chain issues, could impact stock price.",2025-05-17 14:00:00,user5,negative,0.9916103482246399

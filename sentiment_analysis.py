@@ -1,0 +1,30 @@
+import pandas as pd
+from transformers import pipeline
+from datetime import datetime
+
+# Load the mock X posts dataset
+x_posts = pd.read_csv("mock_x_posts.csv")
+
+# Initialize the sentiment analysis pipeline with a pre-trained BERT model
+sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+
+# Function to analyze sentiment of each post
+def analyze_sentiment(text):
+    result = sentiment_analyzer(text)[0]
+    label = result['label']  # POSITIVE or NEGATIVE
+    score = result['score']  # Confidence score
+    # Map BERT labels to our desired labels: positive, negative, neutral
+    if label == "POSITIVE" and score > 0.7:
+        return "positive", score
+    elif label == "NEGATIVE" and score > 0.7:
+        return "negative", score
+    else:
+        return "neutral", score
+
+# Apply sentiment analysis to each post
+x_posts['sentiment'], x_posts['sentiment_score'] = zip(*x_posts['text'].apply(analyze_sentiment))
+
+# Save the results to a new CSV file
+output_file = "AAPL_sentiment.csv"
+x_posts.to_csv(output_file, index=False)
+print(f"Sentiment analysis results saved to {output_file}")
